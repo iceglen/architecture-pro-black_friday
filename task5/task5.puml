@@ -1,0 +1,61 @@
+@startuml
+
+interface "user input" as user
+
+[API Gateway] as gateway
+
+[Service Discovery (Consul)] as consul
+
+package "pymongo-api" {
+    [api1]
+    [api2]
+    [api3]
+}
+
+database "MongoDB" {
+    [router]
+    [configSrv]
+
+    frame "Shards" {
+        frame "Shard 1 replica set" {
+            [shard1_primary]
+            [shard1_secondary1]
+            [shard1_secondary2]
+        }
+        frame "Shard 2 replica set" {
+            [shard2_primary]
+            [shard2_secondary1]
+            [shard2_secondary2]
+        }
+        frame "Shard 3 replica set" {
+            [shard3_primary]
+            [shard3_secondary1]
+            [shard3_secondary2]
+        }
+    }
+}
+
+user --> gateway
+gateway -up-> consul
+[pymongo-api] -up-> consul
+gateway --> [pymongo-api]
+
+[pymongo-api] -down-> router
+router --> configSrv
+router --> [Shards]
+
+shard1_primary --> shard1_secondary1
+shard1_primary --> shard1_secondary2
+
+shard2_primary --> shard2_secondary1
+shard2_primary --> shard2_secondary2
+
+shard3_primary --> shard3_secondary1
+shard3_primary --> shard3_secondary2
+
+[Shards] --> configSrv
+
+[pymongo-api] -right-> [redis]
+
+
+@enduml

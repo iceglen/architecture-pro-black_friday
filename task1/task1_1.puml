@@ -1,0 +1,22 @@
+@startuml
+
+[pymongo-api] as api
+
+database "MongoDB" {
+    [router]
+    [configSrv]
+
+    frame "Shards" {
+        [shard1]
+        [shard2]
+        [shard3]
+    }
+}
+
+api -> router
+router -> configSrv
+router -down-> shard1
+router -down-> shard2
+router -down-> shard3
+
+@enduml
